@@ -1,0 +1,19 @@
+{
+  "name": "scheduler",
+  "version": "1.0.0",
+  "description": "schedule some time in for a description once we get it working",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lgss/scheduler.git"
+  },
+  "author": "LGSS Digital",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lgss/scheduler/issues"
+  },
+  "homepage": "https://github.com/lgss/scheduler#readme"
+}
