@@ -9,7 +9,6 @@ const port = process.env.PORT || 3000
 dotenv.config()
 
 // database
-var Resource = require('./models/resource');
 mongoose.connect(process.env.MONGO_DB_URL, {useNewUrlParser: true});
 
 var db = mongoose.connection;
@@ -26,11 +25,13 @@ app.use(bodyParser.json())
 app.use(cors())
 
 // set up separate routes files for easier management
-var routes = require('./routes/resource.js');
-app.use('/', routes);
+app.use(express.static('static'))
+var resource = require('./routes/resource.js');
+app.use('/resource', resource);
+var booking = require('./routes/booking.js');
+app.use('/booking', booking);
 
 // run the server
 app.listen(port, () => {
     console.log(`Server running on port http://localhost:${port}`)
 })
-
