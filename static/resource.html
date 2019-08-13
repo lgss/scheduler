@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <h1>Scheduler - resource tests</h1>
+
+        <h2>Create a resource</h2>
+        <div>
+            <label for="resourceName">Name: </label>
+            <input id="resourceName" type="text"/>
+            <button onclick="createResource()">Create resource</button>
+        </div>
+
+        <h2>Update a resource</h2>
+        <div>
+            <label for="updateResourceID">Resource ID: </label>
+            <input id="updateResourceID" type="text"/>
+            <label for="updateResourceName">Update Name: </label>
+            <input id="updateResourceName" type="text"/>
+            <button onclick="updateResource()">Update resource</button>
+        </div>
+
+        <h2>Resources</h2>
+        <div>
+            <h3>All</h3>
+            <div>
+                    <button onclick="getResources()">Get resources</button>  
+            </div>
+            <h3>Single</h3>
+            <div>
+                    <label for="resourceID">Resource ID: </label>
+                    <input id="resourceID" type="text"/>
+                    <button onclick="getResource()">Get resource</button>
+                    <button onclick="deleteResource()">Delete resource</button>
+            </div>
+            <div id="resources"></div>
+        </div>
+        <!-- Scripts-->
+        <script>
+            async function getResources() {
+                var resourceList = document.getElementById('resources')
+                fetch('/resource/get')
+                    .then(async (data) => {
+                        resourceList.innerText = await data.text() 
+                    })
+                    .catch((err) => {
+                        resourceList.innerText = err
+                    })
+            }
+            async function getResource() {
+                var resourceList = document.getElementById('resources')
+                fetch('/resource/get', {method:'post', headers:{'Content-Type':'application/json'},body: JSON.stringify({resourceID:resourceID.value})})
+                    .then(async (data) => {
+                        resourceList.innerText = await data.text() 
+                    })
+                    .catch((err) => {
+                        resourceList.innerText = err
+                    })
+            }
+            function createResource() {
+                var resourceName = document.getElementById('resourceName')
+                fetch('/resource/create', {method:'post', headers:{'Content-Type':'application/json'},body: JSON.stringify({resourceName:resourceName.value})})
+            }
+            function updateResource() {
+                fetch('/resource/update', {method:'post', headers:{'Content-Type':'application/json'},body: JSON.stringify({resourceID:updateResourceID.value, updateResourceName:updateResourceName.value})})
+            }
+            function deleteResource() {
+                var resourceID = document.getElementById('resourceID')
+                fetch('/resource/delete', {method:'post', headers:{'Content-Type':'application/json'},body: JSON.stringify({resourceID:resourceID.value})})
+            }
+        </script>   
+    </body>
+</html>
