@@ -7,6 +7,7 @@ var Resource = require('../models/resource');
 mongoose.Promise = global.Promise;
 
 // C: create a resouce
+// Could be a PUT method
 router.post('/create', (req, res) => {
     var newResource = new Resource({
         name: req.body.resourceName
@@ -53,6 +54,7 @@ router.post('/update', (req, res) => {
 })
 
 // D: delete a resource
+// Could use the DELETE method
 router.post('/delete', (req, res) => {
     var query = { _id: req.body.resourceID }
     Resource.findOneAndDelete(query)
