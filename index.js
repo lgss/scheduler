@@ -30,6 +30,8 @@ var resource = require('./routes/resource.js');
 app.use('/resource', resource);
 var booking = require('./routes/booking.js');
 app.use('/booking', booking);
+var availability = require('./routes/availability.js');
+app.use('/availability', availability);
 
 // run the server
 app.listen(port, () => {
