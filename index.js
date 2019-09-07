@@ -28,8 +28,8 @@ app.use(cors())
 app.use(express.static('static'))
 var resource = require('./routes/resource.js');
 app.use('/resource', resource);
-var booking = require('./routes/booking.js');
-app.use('/booking', booking);
+var restriction = require('./routes/restriction.js');
+app.use('/restriction', restriction);
 var availability = require('./routes/availability.js');
 app.use('/availability', availability);
 

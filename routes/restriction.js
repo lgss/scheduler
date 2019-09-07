@@ -3,17 +3,18 @@ const mongoose = require('mongoose');
 
 var router = express.Router();
 
-var Booking = require('../models/booking');
+var Restriction = require('../models/restriction');
 mongoose.Promise = global.Promise;
 
-// C: create a booking
+// C: create a restriction
 router.post('/create', (req, res) => {
-    var newBooking = new Booking({
-        resource: req.body.bookingResource,
-        start: req.body.bookingStart,
-        end: req.body.bookingEnd,
+    var newRestriction = new Restriction({
+        resource: req.body.restrictionResource,
+        type: req.body.restrictionType,
+        start: req.body.restrictionStart,
+        end: req.body.restrictionEnd,
     })
-    newBooking.save()
+    newRestriction.save()
         .then((callback) => {
             res.send(callback)
             console.log(callback)
@@ -21,9 +22,9 @@ router.post('/create', (req, res) => {
         .catch(console.error)
 })
 
-// R: get all bookings
+// R: get all restrictions
 router.get('/get', async (req, res) => {
-    Booking.find()
+    Restriction.find()
         .then((results) => {
             res.send(results)
             console.log(results)
@@ -31,10 +32,10 @@ router.get('/get', async (req, res) => {
         .catch(console.error)
 })
 
-// R: get a booking
+// R: get a restriction
 router.post('/get', async (req, res) => {
-    var query = { _id: req.body.bookingID }
-    Booking.findOne(query)
+    var query = { _id: req.body.restrictionID }
+    Restriction.findOne(query)
         .then((results) => {
             res.send(results)
             console.log(results)
@@ -42,11 +43,11 @@ router.post('/get', async (req, res) => {
         .catch(console.error)
 })
 
-// U: update a booking
+// U: update a restriction
 router.post('/update', (req, res) => {
-    var query = { _id: req.body.bookingID }
-    var update = { resource: req.body.bookingResource, start: req.body.bookingStart, end: req.body.bookingEnd }
-    Booking.findOneAndUpdate(query,update)
+    var query = { _id: req.body.restrictionID }
+    var update = { resource: req.body.restrictionResource, type: req.body.restrictionType, start: req.body.restrictionStart, end: req.body.restrictionEnd }
+    Restriction.findOneAndUpdate(query,update)
         .then((callback) => {
             res.send(callback)
             console.log(callback)
@@ -54,10 +55,10 @@ router.post('/update', (req, res) => {
         .catch(console.error)
 })
 
-// D: Delete a booking
+// D: Delete a restriction
 router.post('/delete', (req, res) => {
-    var query = { _id: req.body.bookingID }
-    Booking.findOneAndDelete(query)
+    var query = { _id: req.body.restrictionID }
+    Restriction.findOneAndDelete(query)
         .then((callback) => {
             res.send(callback)
             console.log(callback)

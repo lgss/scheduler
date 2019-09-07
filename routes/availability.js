@@ -1,68 +1,85 @@
 const express = require('express');
 const mongoose = require('mongoose');
-
+var moment = require('moment');
 var router = express.Router();
 
-var Availability = require('../models/availability');
+var Restriction = require('../models/restriction');
 mongoose.Promise = global.Promise;
 
-// C: create a availability
-router.post('/create', (req, res) => {
-    var newAvailability = new Availability({
-        resource: req.body.availabilityResource,
-        start: req.body.availabilityStart,
-        end: req.body.availabilityEnd,
+// R: get availability by date
+router.post('/getbydate', async (req, res) => {
+    console.log("Create slots")
+    x = createSlots(req.body.start, req.body.end, req.body.interval)
+    
+    console.log("Get restrictions")
+    getRestrictionsByDate(req.body.start, req.body.end, function(y) {
+
+        console.log("Get available slots")
+        z = getAvailableSlots(x,y)
+        res.send(z)
     })
-    newAvailability.save()
-        .then((callback) => {
-            res.send(callback)
-            console.log(callback)
-        })
-        .catch(console.error)
+    
 })
 
-// R: get all availabilities
-router.get('/get', async (req, res) => {
-    Availability.find()
+function createSlots(start, end, interval) {
+                    //TODO: Create a list for slots to be held in
+                    var slotList = []
+                    var availabilityEnd = moment(end).format()
+                    var slotStart = moment(start).format()
+                    var slotEnd= moment(slotStart).add(interval, 'm').format()
+                    var slot = 0
+                    while (slotEnd <= availabilityEnd) {
+                        console.log("Slot: " + slot + " Start: " + slotStart + " End:" + slotEnd)
+                        //Create slots as json objects
+                        var slotStr = {"slot":slot, "start":slotStart, "end": slotEnd}
+                        //Add slots to the list
+                        slotList.push(slotStr)
+                        slotStart = slotEnd //should slot end be 1 min later than slot end?
+                        slotEnd = moment(slotEnd).add(interval, 'm').format()
+                        slot+=1
+                    }
+                    // Return the list of slots
+                    return slotList
+}
+
+function getRestrictionsByDate(start,end, callback) {
+    var query = {start: {'$gte': start }, end: {'$lte': end }} // TODO: This query need work to include overlapping restrictions
+    Restriction.find(query)
         .then((results) => {
-            res.send(results)
-            console.log(results)
+            results.forEach(result => {
+                console.log("Restriction: Start: " + moment(result["start"]).format() + " > End: " + moment(result["end"]).format())                
+            });
+            callback(results)
         })
         .catch(console.error)
-})
+}
 
-// R: get a availability
-router.post('/get', async (req, res) => {
-    var query = { _id: req.body.availabilityID }
-    Availability.findOne(query)
-        .then((results) => {
-            res.send(results)
-            console.log(results)
-        })
-        .catch(console.error)
-})
+function getAvailableSlots(slots,restrictions) {
+    //filter
+    var availableSlots = []
 
-// U: update a availability
-router.post('/update', (req, res) => {
-    var query = { _id: req.body.availabilityID }
-    var update = { resource: req.body.availabilityResource, start: req.body.availabilityStart, end: req.body.availabilityEnd }
-    Availability.findOneAndUpdate(query,update)
-        .then((callback) => {
-            res.send(callback)
-            console.log(callback)
-        })
-        .catch(console.error)
-})
+    slots.filter(slot => {
+        for (var i = 0; i < restrictions.length; i++) {  
+            rStart = moment(restrictions[i]["start"]).format()
+            rEnd = moment(restrictions[i]["end"]).format()
+            var add = true;
 
-// D: Delete a availability
-router.post('/delete', (req, res) => {
-    var query = { _id: req.body.availabilityID }
-    Availability.findOneAndDelete(query)
-        .then((callback) => {
-            res.send(callback)
-            console.log(callback)
-        })
-        .catch(console.error)
-})
+            if (
+                (slot["start"] >= rStart && slot["start"] < rEnd) ||
+                (slot["end"] > rStart && slot["end"] <= rEnd) ||
+                (slot["start"] <= rStart && slot["end"] >= rEnd)
+                ) {
+                    return add = false
+                }
+            else
+                continue
+        }
+        if(add)
+            console.log("Slot: " + " Start: " + slot["start"] + " > End:" + slot["end"])
+            availableSlots.push(slot)
+        return true;
+    });
+    return availableSlots
+}
 
 module.exports = router;

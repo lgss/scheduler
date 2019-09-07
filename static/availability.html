@@ -2,78 +2,40 @@
 <html>
     <body>
         <h1>Scheduler - availability tests</h1>
-
-        <h2>Create a availability</h2>
-        <div>
-                <label for="availabilityResource">Resource: </label>
-                <input id="availabilityResource" type="text"/>
-                <label for="availabilityStart">Start: </label>
-                <input id="availabilityStart" type="datetime-local"/>
-                <label for="availabilityEnd">End: </label>
-                <input id="availabilityEnd" type="datetime-local"/>
-                <button onclick="createavailability()">Create availability</button>
-        </div>
-
-        <h2>Update a availability</h2>
-        <div>
-                <label for="updateavailabilityID">availability ID: </label>
-                <input id="updateavailabilityID" type="text"/>
-                <label for="updateavailabilityResource">Resource: </label>
-                <input id="updateavailabilityResource" type="text"/>
-                <label for="updateavailabilityStart">Start: </label>
-                <input id="updateavailabilityStart" type="datetime-local"/>
-                <label for="updateavailabilityEnd">End: </label>
-                <input id="updateavailabilityEnd" type="datetime-local"/>
-                <button onclick="updateavailability()">Update availability</button>
-        </div>
-        
-        <h2>availabilitys</h2>
-        <div>
-            <h3>All</h3>
+            <h2>All availability by dates</h2>
             <div>
-                <button onclick="getavailabilitys()">Get availabilitys</button>  
+                <label for="availabilitySearchStart">Availbility between: </label>
+                <input id="availabilitySearchStart" type="datetime-local"/>
+                <label for="availabilitySearchEnd">and: </label>
+                <input id="availabilitySearchEnd" type="datetime-local"/>
+                <label for="availabilityinterval">for: </label>
+                <input id="availabilityinterval"/>
+                <button onclick="getavailabilitybydate()">Get availability</button>
             </div>
-            <h3>Single</h3>
-            <div>
-                <label for="availabilityID">availability ID: </label>
-                <input id="availabilityID" type="text"/>
-                <button onclick="getavailability()">Get availability</button>
-                <button onclick="deleteavailability()">Delete availability</button>
-            </div>
-            <div id="availabilitys"></div>
         </div>
+
+        <h2>Results</h2>
+        <div id="availabilitys"></div>
 
         <!-- Scripts-->
         <script>
-                async function getavailabilitys() {
-                    var availabilitysList = document.getElementById('availabilitys')
-                    fetch('/availability/get')
-                        .then(async (data) => {
-                            availabilitysList.innerText = await data.text() 
-                        })
-                        .catch((err) => {
-                            availabilitysList.innerText = err
-                        })
-                }
-                async function getavailability() {
-                    var availabilitysList = document.getElementById('availabilitys')
-                    fetch('/availability/get', {method:'post', headers:{'Content-Type':'application/json'},body: JSON.stringify({availabilityID:availabilityID.value})})
-                        .then(async (data) => {
-                            availabilitysList.innerText = await data.text() 
-                        })
-                        .catch((err) => {
-                            availabilitysList.innerText = err
-                        })
-                }
-                function createavailability() {
-                    fetch('/availability/create', {method:'post', headers:{'Content-Type':'application/json'},body: JSON.stringify({availabilityResource:availabilityResource.value, availabilityStart:availabilityStart.value, availabilityEnd:availabilityEnd.value,})})
-                }
-                function updateavailability() {
-                    fetch('/availability/update', {method:'post', headers:{'Content-Type':'application/json'},body: JSON.stringify({availabilityID:updateavailabilityID.value, availabilityResource:updateavailabilityResource.value, availabilityStart:updateavailabilityStart.value, availabilityEnd:updateavailabilityEnd.value})})
-                }
-                function deleteavailability() {
-                    fetch('/availability/delete', {method:'post', headers:{'Content-Type':'application/json'},body: JSON.stringify({availabilityID:availabilityID.value})})
-                }
-            </script>   
+            async function getavailabilitybydate() {
+                var availabilitysList = document.getElementById('availabilitys')
+                fetch('/availability/getbydate', {  method:'post',
+                                                        headers:{'Content-Type':'application/json'},
+                                                        body: JSON.stringify({
+                                                        start:availabilitySearchStart.value, 
+                                                        end:availabilitySearchEnd.value, 
+                                                        interval:availabilityinterval.value 
+                                                    })
+                                                })
+                    .then(async (data) => {
+                        availabilitysList.innerText = await data.text() 
+                    })
+                    .catch((err) => {
+                        availabilitysList.innerText = err
+                    })
+            }
+        </script>   
     </body>
 </html>
