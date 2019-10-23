@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <h1>Scheduler - availability tests</h1>
+            <h2>Get availability by dates</h2>
+            <div>
+                <label for="availabilitySearchStart">Availbility between: </label>
+                <input id="availabilitySearchStart" type="datetime-local"/>
+                <label for="availabilitySearchEnd">and: </label>
+                <input id="availabilitySearchEnd" type="datetime-local"/>
+                <label for="availabilityinterval">for: </label>
+                <input id="availabilityinterval"/>
+                <button onclick="getavailabilitybydate()">Get availability</button>
+            </div>
+        </div>
+
+        <h2>Results</h2>
+        <div id="availabilitys"></div>
+
+        <h1>Scheduler - restriction tests</h1>
+
+        <h2>Create a restriction</h2>
+        <div>
+            <div>
+                <label for="restrictionResource">Resource: </label>
+                <input id="restrictionResource" type="text"/>
+    
+                <label for="restrictionFrequency">Frequency</label>
+                <select id = "restrictionFrequency" name="frequency">
+                    <option value="S">Single</option>
+                    <option value="D">Daily</option>
+                    <option value="W">Weekly</option>
+                    <option value="M">Monthly</option>
+                    <option value="Y">Yearly</option>
+                </select> 
+            </div>
+
+            <div>
+                <h3>Restriction details</h3>
+                <label for="restrictionStart">Start: </label>
+                <input id="restrictionStart" type="datetime-local"/>
+    
+                <label for="restrictionEnd">End: </label>
+                <input id="restrictionEnd" type="datetime-local"/>
+            </div>
+
+            <div>
+                <h3>Frequency details</h3>
+                <label for="restrictionFrequencyStart">Start: </label> <!-- TODO: hide if the option is single-->
+                <input id="restrictionFrequencyStart" type="time"/> <!-- TODO: hide if the option is single-->
+                <label for="restrictionFrequencyEnd">End: </label> <!-- TODO: hide if the option is single-->
+                <input id="restrictionFrequencyEnd" type="time"/> <!-- TODO: hide if the option is single-->
+    
+                <label for="restrictionInterval">Frequency Interval</label> <!-- For example; weekly but only every 3rd week-->
+                <input id="restrictionInterval" type="number"/>
+            </div>
+
+            <button onclick="createRestriction()">Create restriction</button>
+        </div>
+
+        <h2>Update a restriction</h2>
+        <div>
+            <div>
+                <label for="updateRestrictionID">Restriction ID: </label>
+                <input id="updateRestrictionID" type="text"/>
+                <label for="updateRestrictionResource">Resource: </label>
+                <input id="updateRestrictionResource" type="text"/>
+    
+                <select id = "updateRestrictionFrequency" name="frequency">
+                    <option value="S">Single</option>
+                    <option value="D">Daily</option>
+                    <option value="W">Weekly</option>
+                    <option value="M">Monthly</option>
+                    <option value="Y">Yearly</option>
+                </select> 
+            </div>
+
+            <div>
+                <h3>Restriction details</h3>
+                <label for="updateRestrictionStart">Start: </label>
+                <input id="updateRestrictionStart" type="datetime-local"/>
+    
+                <label for="updateRestrictionEnd">End: </label>
+                <input id="updateRestrictionEnd" type="datetime-local"/>
+            </div>
+
+            <div>
+                <h3>Frequency details</h3>
+                <label for="updateRestrictionFrequencyStart">Start: </label> <!-- TODO: hide if the option is single-->
+                <input id="updateRestrictionFrequencyStart" type="time"/> <!-- TODO: hide if the option is single-->
+                <label for="updateRestrictionFrequencyEnd">End: </label> <!-- TODO: hide if the option is single-->
+                <input id="updateRestrictionFrequencyEnd" type="time"/> <!-- TODO: hide if the option is single-->
+    
+                <label for="updateRestrictionInterval">Frequency Interval</label> <!-- For example; weekly but only every 3rd week-->
+                <input id="updateRestrictionInterval" type="number"/>
+            </div>
+
+            <button onclick="updateRestriction()">Update restriction</button>
+        </div>
+        
+        <h2>Get Restrictions</h2>
+        <div>
+            <h3>All</h3>
+            <div>
+                <button onclick="getRestrictions()">Get restrictions</button>  
+            </div>
+            <h3>Single</h3>
+            <div>
+                <label for="restrictionID">Restriction ID: </label>
+                <input id="restrictionID" type="text"/>
+                <button onclick="getRestriction()">Get restriction</button>
+                <button onclick="deleteRestriction()">Delete restriction</button>
+            </div>
+        </div>
+
+        <h2>Results</h2>
+        <div id="restrictions"></div>
+
+        <!-- Scripts-->
+        <script>
+            async function getavailabilitybydate() {
+                var availabilitysList = document.getElementById('availabilitys')
+                fetch('/availability/getbydate', {  method:'post',
+                                                        headers:{'Content-Type':'application/json'},
+                                                        body: JSON.stringify({
+                                                        start:availabilitySearchStart.value, 
+                                                        end:availabilitySearchEnd.value, 
+                                                        interval:availabilityinterval.value 
+                                                    })
+                                                })
+                    .then(async (data) => {
+                        availabilitysList.innerText = await data.text() 
+                    })
+                    .catch((err) => {
+                        availabilitysList.innerText = err
+                    })
+            }
+            async function getRestrictions() {
+                var restrictionsList = document.getElementById('restrictions')
+                fetch('/restriction/get')
+                    .then(async (data) => {
+                        restrictionsList.innerText = await data.text() 
+                    })
+                    .catch((err) => {
+                        restrictionsList.innerText = err
+                    })
+            }
+            async function getRestriction() {
+                var restrictionsList = document.getElementById('restrictions')
+                fetch('/restriction/get', {method:'post', headers:{'Content-Type':'application/json'},body: JSON.stringify({restrictionID:restrictionID.value})})
+                    .then(async (data) => {
+                        restrictionsList.innerText = await data.text() 
+                    })
+                    .catch((err) => {
+                        restrictionsList.innerText = err
+                    })
+            }
+            function createRestriction() {
+                fetch('/restriction/create', {method:'post', headers:{'Content-Type':'application/json'},body: JSON.stringify({restrictionResource:restrictionResource.value, restrictionStart:restrictionStart.value, restrictionEnd:restrictionEnd.value, restrictionFrequency: restrictionFrequency.value})})
+            }
+            function updateRestriction() {
+                fetch('/restriction/update', {method:'post', headers:{'Content-Type':'application/json'},body: JSON.stringify({restrictionID:updateRestrictionID.value, restrictionResource:updateRestrictionResource.value, restrictionStart:updateRestrictionStart.value, restrictionEnd:updateRestrictionEnd.value, restrictionFrequency: restrictionFrequency.value})})
+            }
+            function deleteRestriction() {
+                fetch('/restriction/delete', {method:'post', headers:{'Content-Type':'application/json'},body: JSON.stringify({restrictionID:restrictionID.value})})
+            }
+        </script>   
+    </body>
+</html>

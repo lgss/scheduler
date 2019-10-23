@@ -10,15 +10,12 @@ mongoose.Promise = global.Promise;
 router.post('/getbydate', async (req, res) => {
     console.log("Create slots")
     x = createSlots(req.body.start, req.body.end, req.body.interval)
-    
     console.log("Get restrictions")
     getRestrictionsByDate(req.body.start, req.body.end, function(y) {
-
         console.log("Get available slots")
-        z = getAvailableSlots(x,y)
+        z = calculateAvailableSlots(x,y)
         res.send(z)
     })
-    
 })
 
 function createSlots(start, end, interval) {
@@ -30,20 +27,17 @@ function createSlots(start, end, interval) {
                     var slot = 0
                     while (slotEnd <= availabilityEnd) {
                         console.log("Slot: " + slot + " Start: " + slotStart + " End:" + slotEnd)
-                        //Create slots as json objects
-                        var slotStr = {"slot":slot, "start":slotStart, "end": slotEnd}
-                        //Add slots to the list
-                        slotList.push(slotStr)
-                        slotStart = slotEnd //should slot end be 1 min later than slot end?
+                        var slotStr = {"slot":slot, "start":slotStart, "end": slotEnd} //Create slots as json objects
+                        slotList.push(slotStr) //Add slots to the list
+                        slotStart = slotEnd
                         slotEnd = moment(slotEnd).add(interval, 'm').format()
                         slot+=1
-                    }
-                    // Return the list of slots
-                    return slotList
+                    } 
+                    return slotList // Return the list of slots
 }
 
 function getRestrictionsByDate(start,end, callback) {
-    var query = {start: {'$gte': start }, end: {'$lte': end }} // TODO: This query need work to include overlapping restrictions
+    var query = {start: {'$lt': end }, end: {'$gt': start }}
     Restriction.find(query)
         .then((results) => {
             results.forEach(result => {
@@ -54,8 +48,7 @@ function getRestrictionsByDate(start,end, callback) {
         .catch(console.error)
 }
 
-function getAvailableSlots(slots,restrictions) {
-    //filter
+function calculateAvailableSlots(slots,restrictions) {
     var availableSlots = []
 
     slots.filter(slot => {

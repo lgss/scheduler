@@ -10,9 +10,11 @@ mongoose.Promise = global.Promise;
 router.post('/create', (req, res) => {
     var newRestriction = new Restriction({
         resource: req.body.restrictionResource,
-        type: req.body.restrictionType,
         start: req.body.restrictionStart,
         end: req.body.restrictionEnd,
+        frequency: req.body.restrictionFrequency
+        /*interval: req.body.restrictionInterval,
+        duration: req.body.restrictionDuration*/
     })
     newRestriction.save()
         .then((callback) => {
@@ -46,7 +48,7 @@ router.post('/get', async (req, res) => {
 // U: update a restriction
 router.post('/update', (req, res) => {
     var query = { _id: req.body.restrictionID }
-    var update = { resource: req.body.restrictionResource, type: req.body.restrictionType, start: req.body.restrictionStart, end: req.body.restrictionEnd }
+    var update = { resource: req.body.restrictionResource, start: req.body.restrictionStart, end: req.body.restrictionEnd, frequency: req.body.restrictionFrequency /*interval:req.body.restrictionInterval, duration: req.body.restrictionDuration*/}
     Restriction.findOneAndUpdate(query,update)
         .then((callback) => {
             res.send(callback)
